@@ -14,7 +14,7 @@ import time  # For measuring processing time
 intents = discord.Intents.all()
 intents.messages = True
 intents.message_content = True
-bot = commands.Bot(command_prefix="trp!", intents=intents, help_command=None)
+bot = commands.Bot(command_prefix="bytp!", intents=intents, help_command=None)
 
 # Ensure the 'tmp' directory exists in the bot's current working directory
 TMP_DIR = "tmp"
