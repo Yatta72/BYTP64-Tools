@@ -362,50 +362,50 @@ async def randnum(ctx):
 @bot.command(name="help")
 async def about_bot(ctx):
     embed = discord.Embed(
-        title="TRP Tools - Help",
-        description="A list of commands for TRP Tools, a better version of JERN Utilites by jwklong.",
+        title="BYTP64 Tools - Help",
+        description="A list of commands for BYTP64 Tools",
         color=discord.Color.blue()
     )
 
     # Video commands
     video_commands = """
-    `trp!video speed <value>` - Change the speed of a video (e.g., `2` for double speed).
-    `trp!video reverse` - Reverse the video.
-    `trp!video invert` - Invert the colors of a video.
-    `trp!video rotate180` - Rotate the video by 180 degrees.
-    `trp!video flipv` - Flip the video vertically.
-    `trp!video fliph` - Flip the video horizontally.
-    `trp!video contrast <value>` - Adjust the contrast of a video.
-    `trp!video blackandwhite` - Convert the video to grayscale.
-    `trp!video hue <value>` - Adjust the hue of a video.
-    `trp!video blur <value>` - Apply a blur effect to a video.
-    `trp!video mosaic` - Apply a mosaic effect to a video.
+    `bytp!video speed <value>` - Change the speed of a video (e.g., `2` for double speed).
+    `bytp!video reverse` - Reverse the video.
+    `bytp!video invert` - Invert the colors of a video.
+    `bytp!video rotate180` - Rotate the video by 180 degrees.
+    `bytp!video flipv` - Flip the video vertically.
+    `bytp!video fliph` - Flip the video horizontally.
+    `bytp!video contrast <value>` - Adjust the contrast of a video.
+    `bytp!video blackandwhite` - Convert the video to grayscale.
+    `bytp!video hue <value>` - Adjust the hue of a video.
+    `bytp!video blur <value>` - Apply a blur effect to a video.
+    `bytp!video mosaic` - Apply a mosaic effect to a video.
     """
     embed.add_field(name="Video Commands", value=video_commands, inline=False)
 
     # Audio commands
     audio_commands = """
-    `trp!audio speed <value>` - Change the speed of an audio file.
-    `trp!audio reverse` - Reverse the audio file.
+    `bytp!audio speed <value>` - Change the speed of an audio file.
+    `bytp!audio reverse` - Reverse the audio file.
     """
     embed.add_field(name="Audio Commands", value=audio_commands, inline=False)
 
     # Image commands
     image_commands = """
-    `trp!image flipv` - Flip the image vertically.
-    `trp!image fliph` - Flip the image horizontally.
-    `trp!image invert` - Invert the colors of an image.
-    `trp!image hue <value>` - Adjust the hue of an image.
-    `trp!image contrast <value>` - Adjust the contrast of an image.
-    `trp!image blackandwhite` - Convert the image to grayscale.
+    `bytp!image flipv` - Flip the image vertically.
+    `bytp!image fliph` - Flip the image horizontally.
+    `bytp!image invert` - Invert the colors of an image.
+    `bytp!image hue <value>` - Adjust the hue of an image.
+    `bytp!image contrast <value>` - Adjust the contrast of an image.
+    `bytp!image blackandwhite` - Convert the image to grayscale.
     """
     embed.add_field(name="Image Commands", value=image_commands, inline=False)
 
     # General commands
     general_commands = """
-    `trp!ping` - Test the bot's latency.
-    `trp!randnum` - Chooses a random number.
-    `trp!help` - Show this help message.
+    `bytp!ping` - Test the bot's latency.
+    `bytp!randnum` - Chooses a random number.
+    `bytp!help` - Show this help message.
     """
     embed.add_field(name="General Commands", value=general_commands, inline=False)
 
