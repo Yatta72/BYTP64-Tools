@@ -179,7 +179,7 @@ async def on_ready():
     # Set the bot's status
     await bot.change_presence(
         activity=Game(name="Dandy's World"),
-        status=discord.Status.dnd  # Can be online, idle, dnd (do not disturb), or invisible
+        status=discord.Status.online  # Can be online, idle, dnd (do not disturb), or invisible
     )
 
 @bot.command(name="video")
