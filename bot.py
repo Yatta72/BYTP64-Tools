@@ -31,6 +31,13 @@ async def validate_attachment(attachment):
     if attachment.size > MAX_FILE_SIZE_MB * 1024 * 1024:  # Convert MB to bytes
         raise ValueError(f"File size exceeds the {MAX_FILE_SIZE_MB} MB limit.")
 
+def getSize(filename):
+    cmd = ["ffprobe", "-v", "error", "-show_entries", "stream=width,height", "-of", "csv=p=0:s=x", filename.replace('\\', '/').replace('//', '/')]
+    return [i.strip() for i in get_output(cmd).split('x')]
+
+def get_output(cmd):
+    return subprocess.check_output(cmd).decode
+
 def get_file_metadata(file_path):
     file_size = os.path.getsize(file_path)
     file_size_mb = file_size / (1024 * 1024)  # Convert to MB
@@ -86,12 +93,42 @@ def process_video(input_path, output_path, action, value=None):
             command = ["ffmpeg", "-i", input_path, "-vf", "reverse", "-af", "areverse", "-y", output_path]
         elif action == "invert":
             command = ["ffmpeg", "-i", input_path, "-vf", "negate", "-y", output_path]
+        elif action == "swapuv":
+            command = ["ffmpeg", "-i", input_path, "-vf", "swapuv", "-y", output_path]
+        elif action == "huehsv":
+            if not value:
+                raise ValueError("HueHSV value must be provided.")
+            command = ["ffmpeg", "-i", input_path, "-vf", f"huesaturation={value}:0:0:-100:100", "-y", output_path]
+        elif action == "gm91deform":
+            command = ["ffmpeg", "-i", input_path, "-vf", "format=yuv444p,scale=360:360,setsar=1:1,rotate=0:iw*1.05:ih*1.05,geq='p((W/2)+((X-W/2)/lerp(1,asin(sin(-Y/H)),0.164*1))/lerp(1,1.22,1)+((Y-H/2)*(-0.136*1))+((0.047*1*W)*pow((Y-H/2)/(H/2),2))+(-W/40),(H/2)+((Y-H/2)/lerp(1,1.27,1))/lerp(1,sin((X/W)*PI),0.12*1)-(((0.014*1)*H)*pow((X-W/2)/(W/2),2))+((X-W/2)*(0.12*1))-(1.2*1))',scale='640*lerp(1.05,1.075,1)':360*1.05,setsar=1:1,crop=640:360:'(in_w-in_h)/2+(8*1)'", "-y", output_path]
+        elif action == "swirl":
+            command = ["ffmpeg", "-i", input_path, "-vf", f"format=yuv444p,scale=640:640,geq='p(W*0.5+(hypot(X-W*0.5,Y-H*0.5)+1e-6)*cos((atan2(Y-H*0.5,X-W*0.5))+(({value})/180*PI)*(if(lt(hypot(X-W*0.5,Y-H*0.5)+1e-6,min(W,H)*0.5),1-(hypot(X-W*0.5,Y-H*0.5)+1e-6)/(min(W,H)*0.5),0)^2)),H*0.5+(hypot(X-W*0.5,Y-H*0.5)+1e-6)*sin((atan2(Y-H*0.5,X-W*0.5))+(({value})/180*PI)*(if(lt(hypot(X-W*0.5,Y-H*0.5)+1e-6,min(W,H)*0.5),1-(hypot(X-W*0.5,Y-H*0.5)+1e-6)/(min(W,H)*0.5),0)^2)))',scale=1280:720,format=yuv420p", "-y", output_path]
+        elif action == "pinchpunch":
+                command = ["ffmpeg", "-i", input_path, "-vf", f"format=yuv444p,scale=640:640,geq='p((W*0.5)+(X-W*0.5)/(lte((hypot(X-W*0.5,Y-H*0.5)),(min(W,H)*0.5))*(1+({value})*2*atan(atan(atan(atan(1-(hypot(X-W*0.5,Y-H*0.5))/(min(W,H)*0.5))^2))))+gt((hypot(X-W*0.5,Y-H*0.5)),(min(W,H)*0.5))*1),(H*0.5)+(Y-H*0.5)/(lte((hypot(X-W*0.5,Y-H*0.5)),(min(W,H)*0.5))*(1+({value})*2*atan(atan(atan(atan(1-(hypot(X-W*0.5,Y-H*0.5))/(min(W,H)*0.5))^2))))+gt((hypot(X-W*0.5,Y-H*0.5)),(min(W,H)*0.5))*1))',scale=1280:720,format=yuv420p", "-y", output_path]
         elif action == "rotate180":
             command = ["ffmpeg", "-i", input_path, "-vf", "transpose=2,transpose=2", "-y", output_path]
+        elif action == "invertred":
+            command = ["ffmpeg", "-i", input_path, "-vf", "lutrgb=r=negval", "-y", output_path]
+        elif action == "invertgreen":
+            command = ["ffmpeg", "-i", input_path, "-vf", "lutrgb=g=negval", "-y", output_path]
+        elif action == "invertblue":
+            command = ["ffmpeg", "-i", input_path, "-vf", "lutrgb=b=negval", "-y", output_path]
         elif action == "flipv":
             command = ["ffmpeg", "-i", input_path, "-vf", "vflip", "-y", output_path]
         elif action == "fliph":
             command = ["ffmpeg", "-i", input_path, "-vf", "hflip", "-y", output_path]
+        elif action == "fisheye":
+            command = ["ffmpeg", "-i", input_path, "-vf", "v360=e:ball,scale=iw:ih/2,setsar=1:1", "-y", output_path]
+        elif action == "defisheye":
+            command = ["ffmpeg", "-i", input_path, "-vf", "v360=ball:e,scale=iw:ih*2,setsar=1:1", "-y", output_path]
+        elif action == "fisheye2":
+            command = ["ffmpeg", "-i", input_path, "-vf", "v360=e:hammer", "-y", output_path]
+        elif action == "defisheye2":
+            command = ["ffmpeg", "-i", input_path, "-vf", "v360=hammer:e", "-y", output_path]
+        elif action == "fisheye3":
+            command = ["ffmpeg", "-i", input_path, "-vf", "v360=fisheye:22:7", "-y", output_path]
+        elif action == "defisheye3":
+            command = ["ffmpeg", "-i", input_path, "-vf", "v360=22:fisheye:7", "-y", output_path]
         elif action == "contrast":
             if not value:
                 raise ValueError("Contrast value must be provided.")
@@ -122,7 +159,7 @@ def process_video(input_path, output_path, action, value=None):
         # Run FFmpeg command directly using subprocess for error capture
         subprocess.run(command, check=True, capture_output=True, text=True)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"FFmpeg encountered an error: {e.stderr}")
+        raise RuntimeError(f"ffmpeg error (see stderr output for detail)")
 
 def process_audio(input_path, output_path, action, value=None):
     # Ensure the file paths are correct
@@ -179,7 +216,7 @@ async def on_ready():
     # Set the bot's status
     await bot.change_presence(
         activity=Game(name="Dandy's World"),
-        status=discord.Status.online  # Can be online, idle, dnd (do not disturb), or invisible
+        status=discord.Status.online  # Can be dnd (online), idle, do not disturb, or invisible
     )
 
 @bot.command(name="video")
@@ -206,7 +243,7 @@ async def video(ctx, action: str, value: str = None):
         await attachment.save(input_filename)
 
         # Ensure a valid action and process the video
-        valid_actions = ["speed", "reverse", "invert", "rotate180", "flipv", "fliph", "contrast", "blackandwhite", "blur", "hue", "mosaic"]
+        valid_actions = ["speed", "reverse", "invert", "swapuv", "invertred", "invertgreen", "invertblue", "rotate180", "flipv", "fliph", "gm91deform", "swirl", "pinchpunch", "contrast", "blackandwhite", "blur", "hue", "huehsv", "mosaic", "fisheye", "defisheye", "fisheye2", "defisheye2", "fisheye3", "defisheye3"]
         if action not in valid_actions:
             await ctx.send(f"Invalid action. Supported actions: {', '.join(valid_actions)}.")
             return
@@ -233,7 +270,7 @@ async def video(ctx, action: str, value: str = None):
 
     
     except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+        await ctx.send(f":warning: Command error\n-# {e}")
     finally:
         # Cleanup - Try removing the files after processing
         if os.path.exists(input_filename):
@@ -290,7 +327,7 @@ async def audio(ctx, action: str, value: str = None):
         await ctx.reply(f"-# Took {processing_time:.2f} seconds", file=discord.File(output_filename))
     
     except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+        await ctx.send(f":warning: Command error\n-# {e}")
     finally:
         # Cleanup - Try removing the files after processing
         if os.path.exists(input_filename):
@@ -341,7 +378,7 @@ async def image(ctx, action: str, value: str = None):
         await ctx.reply(f"-# Took {processing_time:.2f} seconds", file=discord.File(output_filename))
 
     except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+        await ctx.send(f":warning: Command error\n-# {e}")
     finally:
         if os.path.exists(input_filename):
             os.remove(input_filename)
@@ -372,12 +409,27 @@ async def about_bot(ctx):
     `bytp!video speed <value>` - Change the speed of a video (e.g., `2` for double speed).
     `bytp!video reverse` - Reverse the video.
     `bytp!video invert` - Invert the colors of a video.
+    `bytp!video swapuv` - Swap the U and V channels of a video.
+    `bytp!video invertred` - Invert the red channel of a video.
+    `bytp!video invertgreen` - Invert the green channel of a video.
+    `bytp!video invertblue` - Invert the blue channel of a video.
+    `bytp!video fisheye` - Add a fisheye effect to a video.
+    `bytp!video defisheye` - Add an inverted fisheye effect to a video.
+    `bytp!video fisheye2` - Add a secondary fisheye effect to a video.
+    `bytp!video defisheye2` - Add a secondary inverted fisheye effect to a video.
+    `bytp!video fisheye3` - Add a third fisheye effect to a video.
+    `bytp!video defisheye3` - Add a third inverted fisheye effect to a video.
     `bytp!video rotate180` - Rotate the video by 180 degrees.
     `bytp!video flipv` - Flip the video vertically.
     `bytp!video fliph` - Flip the video horizontally.
     `bytp!video contrast <value>` - Adjust the contrast of a video.
+    `bytp!video gm91deform` - Add G-Major 91's Deform to a video.
+    `bytp!video swirl <value>` - Add a swirl effect to a video.
+    `bytp!video swirl <value>` - Add a pinch/punch effect to a video.
+    
     `bytp!video blackandwhite` - Convert the video to grayscale.
     `bytp!video hue <value>` - Adjust the hue of a video.
+    `bytp!video huehsv <value>` - Adjust the hue of a video using HSV.
     `bytp!video blur <value>` - Apply a blur effect to a video.
     `bytp!video mosaic` - Apply a mosaic effect to a video.
     """
@@ -413,4 +465,6 @@ async def about_bot(ctx):
     await ctx.send(embed=embed)
 
 # Run the bot
-bot.run("YOUR-API-KEY-HERE")
+token = "YOUR BOT TOKEN HERE."
+bot.run(token)
+
